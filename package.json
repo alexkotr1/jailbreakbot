@@ -1,0 +1,29 @@
+{
+  "name": "JailbreakBot",
+  "description": "A bot for r/jailbreak discord server/",
+  "author": "Alex Kotrotsios <alexkotrotsios123@gmail.com>",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "async-redis": "^1.1.4",
+    "cydia-api-node": "^1.0.2",
+    "discord.js": "^11.4.2",
+    "discord.js-commando": "^0.10.0",
+    "erlpack": "github:discordapp/erlpack",
+    "images-downloader": "^1.0.3",
+    "imgur-node-api": "^0.1.0",
+    "libsodium-wrappers": "^0.7.3",
+    "node-cron": "^2.0.3",
+    "optimist": "0.2.x",
+    "reddit-snooper": "^1.0.1",
+    "redis": "^2.8.0",
+    "uws": "^10.148.1",
+    "youtube-audio-stream": "^0.2.0",
+    "zlib-sync": "^0.1.4"
+  },
+  "devDependencies": {
+    "vows": "0.5.x"
+  },
+  "engine": "node >= 0.4.1"
+}
