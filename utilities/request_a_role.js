@@ -1,9 +1,8 @@
 const config = require("../config")
-const client = require("../index")
-
-module.exports = async function request_a_role(){
+const db = require("../utilities/db")
+module.exports = async function request_a_role(client){
     const rjailbreak = client.guilds.get(config.rjb)
-    const request_a_role = rjailbreak.channels.get(await db.get('requestarole'))
+    const request_a_role = rjailbreak.channels.get(config.request_channel)
     request_a_role.fetchMessages({
             limit: 3
         })
@@ -29,10 +28,10 @@ module.exports = async function request_a_role(){
                             if (message.embeds[0].fields[0].name === 'Firmware Updates') {
                                 var firmware_fields = []
                                 for (var e = 0;e<firmware_fields_length;e++){
-                                    firmware_fields.push(await db.hgetall("firmware_fields_" + e.toString()))
+                                    firmware_fields.push(await db.hgetall("firmware_updates" + e.toString()))
                                 }
-                                for (var x = 0;e<firmware_fields.length;e++){
-                                    if (r.emoji.id === firmware_fields[e].emoji){
+                                for (var x = 0;x<firmware_fields.length;x++){
+                                    if (r.emoji.id === firmware_fields[x].emoji){
                                         try {
                                             if (!member.roles.exists('id',firmware_fields[x].role)) member.addRole(firmware_fields[x].role)
                                             else member.removeRole(firmware_fields[x].role)
@@ -45,10 +44,10 @@ module.exports = async function request_a_role(){
                             } else if (message.embeds[0].fields[0].name === 'Jailbreak Updates') {
                                 var jailbreak_fields = []
                                 for (var e = 0;e<jailbreak_fields_length;e++){
-                                    firmware_fields.push(await db.hgetall("jailbreak_fields_" + e.toString()))
+                                    jailbreak_fields.push(await db.hgetall("jailbreak_updates" + e.toString()))
                                 }
-                                for (var x = 0;e<jailbreak_fields.length;e++){
-                                    if (r.emoji.id === jailbreak_fields[e].emoji){
+                                for (var x = 0;x<jailbreak_fields.length;x++){
+                                    if (r.emoji.id === jailbreak_fields[x].emoji){
                                         try {
                                             if (!member.roles.exists('id',jailbreak_fields[x].role)) member.addRole(jailbreak_fields[x].role)
                                             else member.removeRole(jailbreak_fields[x].role)
@@ -59,13 +58,13 @@ module.exports = async function request_a_role(){
                                     }
                                 }
                               
-                            } else if (message.embeds[0].fields[0].name === 'Other') {
+                            } else if (message.embeds[0].fields[0].name.startsWith('Other')) {
                                 var other_fields = []
                                 for (var e = 0;e<other_fields_length;e++){
-                                    firmware_fields.push(await db.hgetall("other_fields_" + e.toString()))
+                                    other_fields.push(await db.hgetall("other_updates" + e.toString()))
                                 }
-                                for (var x = 0;e<other_fields.length;e++){
-                                    if (r.emoji.id === other_fields[e].emoji){
+                                for (var x = 0;x<other_fields.length;x++){
+                                    if (r.emoji.id === other_fields[x].emoji){
                                         try {
                                             if (!member.roles.exists('id',other_fields[x].role)) member.addRole(other_fields[x].role)
                                             else member.removeRole(other_fields[x].role)

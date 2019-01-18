@@ -152,6 +152,7 @@ const {
     CommandoClient
 } = require('discord.js-commando');
 const Discord = require("discord.js");
+const apply = require("./utilities/request_a_role")
 const path = require('path');
 const cron = require("node-cron");
 const Snooper = require('reddit-snooper');
@@ -225,6 +226,7 @@ client.on('ready', async () => {
         rjailbreak.fetchMembers().then(() => {
             console.log(`Total cached users ${client.users.size}`);
         });
+        apply(client)
 		cron.schedule('* * * * *', ()=>{
 			const muted_Role = rjailbreak.roles.get(config.muted)
 			const muted_members = muted_Role.members.array();
@@ -302,8 +304,8 @@ client.on("guildMemberUpdate", (old, newM) => {
             post(embed)
         } else if (!newM.nickname && old.nickname) {
             const embed = new Discord.RichEmbed()
-                .setTitle("Nickname Reset")
-                .addField("User", newM.user.tag, true)
+            .setTitle("Nickname Reset")
+            .addField("User", newM.user.tag, true)
             .addField("Old Nickname", old.nickname)
             .setThumbnail(newM.user.avatarURL)
             .setColor(0x0297DB)
@@ -413,7 +415,7 @@ client.on("message", message=> {
 async function save_message(message){	
 	const count = await db.get(`${message.channel.id}messageListCount`)
     db.hmset(
-    "messages" + message.channel.id + count ? count : 0,
+    `messages${message.channel.id}${count ? count : 0}`,
     "id",message.id,
     "content",message.content,
     "channel",message.channel.id,
@@ -709,4 +711,3 @@ async function prepare_reports(rjb) {
 
 client.login(config.token);
 
-module.exports = client
