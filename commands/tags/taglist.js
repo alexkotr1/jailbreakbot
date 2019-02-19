@@ -3,8 +3,7 @@ const {
 } = require('discord.js-commando');
 const config = require("../../config")
 const db = require("../../utilities/db")
-const Discord = require('discord.js');
-
+const { Util, RichEmbed } = require('discord.js')
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -26,19 +25,23 @@ module.exports = class SayCommand extends Command {
         const embeds_array = [];
         const times = (array.length / 25) >> 0
         for (var e = 0; e < times + 1; e++) {
-            const embed = new Discord.RichEmbed()
+            const embed = new RichEmbed()
             embed.setTitle("Tag list")
             embed.setColor(0xB1098B)
             embed.setFooter(`Requested by ${msg.author.username}  |  ${msg.author.id} (Page ${e + 1}/${times + 1})`)
             embed.setTimestamp()
             for (var i = 0; i < array.length && i < 25; i++) {
                 const name = Object.getOwnPropertyNames(res)[e * 25 + i];
-                const value = res[name];
-                if (name && value) embed.addField(name, value)
+                const value = Util.escapeMarkdown(res[name]);
+                if (value.length >= 1024){
+                    const values = Util.splitMessage(value,{maxLength:1024})
+                    for(var a = 0;a<values.length;a++){
+                        embed.addField(a == 0 ? name : '...',values[a])
+                    }
+                }
+                else if (name && value) embed.addField(name, value)
             }
-            if (embed.fields.length > 0) embeds_array.push({
-                embed
-            });
+            if (embed.fields.length > 0) embeds_array.push({embed});
         }
         msg.channel.send(embeds_array[0]).then(async message => {
             db.set(message.id + 'reactions', 0)

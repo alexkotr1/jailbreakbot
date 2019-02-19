@@ -37,6 +37,8 @@ const res2 = await db.get("cases");
 if (!res) return msg.reply("You have to set a mod logging channel first.").then(e=>e.delete(3000));
 const modlog = msg.guild.channels.get(config.public_mod_logs);
 if (!modlog) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));if (!modlog) return msg.reply("I couldn't find the mod logging channel.").then(e=>e.delete(10000));
+const can_take_action = await db.exists("action_" + member.user.id)
+if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
 if (!member.kickable) return msg.reply("I don't have enough permissions to perform this action.").then(e=>e.delete(10000));
 member.user.send(`You have been kicked from ${msg.guild.name} for the following reason: ${reason}`).catch(console.error).then(()=>{
 member.kick(reason).then(()=>{
@@ -52,6 +54,7 @@ const embed = new Discord.RichEmbed()
   embed.addField("Reason",reason);
    modlog.send({embed}).catch(console.error);
    msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
+   db.set("action_" + member.user.id,'1','EX','30')
 }).catch(console.error);
 }).catch(console.error);
 }).catch(console.error);	

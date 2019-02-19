@@ -25,7 +25,7 @@ module.exports = class SayCommand extends Command {
         });
     }
 hasPermission(message) {
-        return (message.member.roles.exists("id", config.administrator) || msg.author.id == config.owner);
+        return (message.member.roles.exists("id", config.administrator) || message.author.id == config.owner);
     }
 	
 	run(message,{channel,text}) {

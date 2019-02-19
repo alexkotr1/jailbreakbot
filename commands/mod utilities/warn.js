@@ -24,8 +24,7 @@ module.exports = class SayCommand extends Command {
 				{
                     key: 'reason',
                     prompt: 'Provide reason of the warn',
-                    type: 'string',
-					default: 'No reason specified'
+                    type: 'string'
                 }
             ]
         });    
@@ -35,10 +34,12 @@ hasPermission(msg) {
     }
 	
    async run(msg, {member,points,reason}) {
-msg.delete().catch(console.error);
-if (member.highestRole.calculatedPosition >= msg.member.highestRole.calculatedPosition) return msg.reply(`You do not have the authority to perform moderation actions on ${member.displayName}`);
+await msg.delete().catch(console.error);
+if (member.highestRole.calculatedPosition >= msg.member.highestRole.calculatedPosition) return msg.reply(`You do not have the authority to perform moderation actions on ${member.displayName}.`);
 const modlog = msg.guild.channels.get(config.public_mod_logs);
 if (!modlog) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));
+const can_take_action = await db.exists("action_" + member.user.id)
+if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
 const points_before_warn = parseInt(await db.hget("warnpoints",member.user.id));
 if (points_before_warn + points >= 400){
     if (points_before_warn + points >= 600) {
@@ -53,7 +54,7 @@ if (points_before_warn + points >= 400){
 }
 else db.hincrby("warnpoints",member.user.id,points).catch(console.error);
 const caseNumber = await db.get("cases").catch(console.error);
-db.incr("cases").then(()=>{
+await db.incr("cases")
 const embed = new Discord.RichEmbed()
   .setTitle(`Member Warned`)
   .setColor(0xffa500)
@@ -64,9 +65,11 @@ const embed = new Discord.RichEmbed()
   .addField("Increase",`${points} Points`,true)
   .addField("Reason",reason,true)
   .setThumbnail(member.user.avatarURL)
-  msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
-   modlog.send({embed}).catch(console.error);
+   await modlog.send({embed}).catch(console.error);
+   await msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
+   await db.set("action_" + member.user.id,'1','EX','30')
    db.bgsave();
-});
+   await member.user.send(`You have been warned by ${msg.author.tag} with ${points} for: ${reason}.`).catch(console.error);
+
 }
 };

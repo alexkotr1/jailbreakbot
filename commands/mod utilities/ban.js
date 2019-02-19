@@ -36,6 +36,8 @@ if (member.highestRole.calculatedPosition >= msg.member.highestRole.calculatedPo
 const modlog = msg.guild.channels.get(config.public_mod_logs);
 if (!modlog) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));
 if (!member.bannable) return msg.reply("I don't have the permission to perform this action.").catch(console.error);
+const can_take_action = await db.exists("action_" + member.user.id)
+if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
 const caseNumber = await db.get("cases");
 db.incr("cases").then(()=>{
 member.ban({days: 7,reason: reason}).then(()=>{
@@ -52,6 +54,8 @@ member.ban({days: 7,reason: reason}).then(()=>{
     modlog.send({embed}).catch(console.error);
     msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
     member.user.send(`You have been banned from ${msg.guild.name} for the following reason : ${reason}\nIf you feel you were banned wrongfully, you can send a modmail at https://www.reddit.com/message/compose?to=%2Fr%2Fjailbreak .`);
+    db.set("action_" + member.user.id,'1','EX','30')
+
 }).catch(console.error);
 })
            

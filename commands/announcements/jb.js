@@ -27,16 +27,16 @@ module.exports = class SayCommand extends Command {
 hasPermission(msg) {
         return (msg.member.roles.exists("id", config.administrator));
     }
-    run(msg, { jb, tweet}) {
-        msg.delete().catch(console.error);
+    run(message, { jb, tweet}) {
+        message.delete().catch(console.error);
         const role = message.guild.roles.find("name",jb)
         if (!role) return message.reply("I couldn't find the jailbreak's role.").then(e=>e.delete(3000));
         const announcements = message.guild.channels.get(config.announcements)
         if (!announcements) return message.reply("I couldn't find the announcements channel.").then(e=>e.delete(3000));
         role.setMentionable(true).then(()=>{
-            announcements.send(`${role} ${tweet}`)
-        }).then(()=>{
-            role.setMentionable(false)
+            announcements.send(`${role} ${tweet}`).then(()=>{
+                role.setMentionable(false)
+            })
         })
         return message.reply("Success!").then(e=>e.delete(3000));
 

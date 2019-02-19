@@ -41,6 +41,8 @@ const channel = msg.guild.channels.get(config.public_mod_logs);
 if (!channel) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));
 const res = await db.hgetall(`${member.user.id}mutedInfo`).catch(console.error);
 if (res) return msg.reply(`${member.user.tag} is already muted.`).catch(console.error);
+const can_take_action = await db.exists("action_" + member.user.id)
+if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
 var time = parseInt(timer.substr(0,timer.length - 1));
 const type = timer.replace(time.toString(),"");
 var duration = '';
@@ -83,6 +85,7 @@ member.addRole(mutedRole).then(async ()=>{
     member.user.send(`You have been muted by **${msg.author.tag}** for: ${duration}`).catch(console.error);
   }).catch(console.error);
   msg.client.guilds.get(config.staff_server).channels.get(config.mod_logs).send({embed}).catch(console.error);
+  db.set("action_" + member.user.id,'1','EX','30')
 }).catch(console.error);
 
 
