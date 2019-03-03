@@ -212,11 +212,6 @@ exports.modules = {
         }
         else db.set(`${message.author.id}_mention_count`,count,'EX','5')
     },
-    count_genius_message : async function count_geniuses_message(message){
-        if (!message.member.roles.exists("id",config.genius) || message.member.roles.exists("id",config.moderator)) return undefined
-        if (message.channel.parent.id !== '355946591065997313' && message.channel.id !== '533094228041924629') return undefined
-        await db.hincrby("genius_count",message.author.id,1)
-    },
     save_message : async function save_message(message){	
         const count = await db.get(`${message.channel.id}messageListCount`)
         db.hmset(
@@ -249,58 +244,6 @@ exports.modules = {
     .catch(error => console.error("downloaded error", error))
         }
     
-    },
-    crosspost: async function crosspost(message){
-        if (message.guild.id === config.log_server && message.webhookID == null) return message.delete() 
-        const client = get_client.modules.client
-        const log_server = client.guilds.get(config.log_server);
-        if (!log_server || message.guild.id !== config.rjb) return undefined
-        const log_channel = log_server.channels.find(channel=>channel.name === message.channel.name);
-        if (!log_channel){
-            log_server.createChannel(message.channel.name,message.channel.type).then(async channel=>{
-                const parent = message.channel.parent
-                if (parent){
-                const log_parent = log_server.channels.filter(channel=>channel.type === 'category').find(channel=>channel.name === parent.name)
-                if (!log_parent){
-                    const new_log_parent = await log_server.createChannel(parent.name,'category');
-                    new_log_parent.setPosition(parent.position)
-                    channel.setParent(new_log_parent)
-                }
-                else channel.setParent(log_parent)
-            }
-                await channel.setPosition(message.channel.position)
-                if (message.channel.topic) await channel.setTopic(message.channel.topic)
-                channel.createWebhook('JailbreakBot (DO NOT REMOVE)').then(async webhook=>{
-                    await db.hset("webhooks",channel.id,webhook.id)
-                    webhook.send(`**${message.author.tag} : ** ${message.cleanContent}`,{
-                        'username': message.author.id,
-                        'avatarURL' : message.author.avatarURL,
-                        'files' : message.attachments.array().map(attachment => attachment.url),
-                        'disableEveryone' : true,
-                        'split' : true
-                      }).catch(console.error);   
-                })
-            })
-        }
-        else {
-            const webhooks = await log_channel.fetchWebhooks()
-            const id = await db.hget("webhooks",log_channel.id)
-            var hook = webhooks.find(webhook => webhook.id === id)
-            if (!hook){
-               hook = await log_channel.createWebhook('JailbreakBot (DO NOT REMOVE)')
-               await db.hset("webhooks",log_channel.id,hook.id)
-            }
-            hook.send(`**${message.author.tag} : ** ${message.cleanContent}`,{
-                'username': message.author.id,
-                'avatarURL' : message.author.avatarURL,
-                'files' : message.attachments.array().map(attachment => attachment.url),
-                'disableEveryone' : true,
-                'split' : true
-              }).catch(console.error);                
-            
-
-        }
-        
     }, edit_embeds : async function edit_embeds(msg,embeds_array,sub_embeds,emoji){
         if (!embeds_array) return undefined
         embeds_array = embeds_array.filter(embed => embed instanceof RichEmbed)
