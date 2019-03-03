@@ -1,5 +1,5 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -33,13 +33,11 @@ hasPermission(msg) {
         if (!role) return message.reply("I couldn't find the jailbreak's role.").then(e=>e.delete(3000));
         const announcements = message.guild.channels.get(config.announcements)
         if (!announcements) return message.reply("I couldn't find the announcements channel.").then(e=>e.delete(3000));
-        role.setMentionable(true).then(()=>{
-            announcements.send(`${role} ${tweet}`).then(()=>{
-                role.setMentionable(false)
-            })
-        })
+        role.
+        setMentionable(true)
+        .then(()=>announcements.send(`${role} ${tweet}`)
+        .then(()=>role.setMentionable(false)
+        ))
         return message.reply("Success!").then(e=>e.delete(3000));
-
-		
     }
 };

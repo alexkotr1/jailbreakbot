@@ -1,9 +1,7 @@
-const {
-    Command
-} = require('discord.js-commando');
-const config = require("../../config");
-const essentials = require("../../music_exports").modules
-const { RichEmbed } = require("discord.js")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        essentials = require("../../music_exports").modules,
+      { RichEmbed } = require("discord.js")
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -19,6 +17,7 @@ module.exports = class SayCommand extends Command {
         return msg.member.roles.exists("id", config.moderator) || msg.channel.id === config.b_commands
     }
     async run(message) {
+        await message.delete();
         const serverQueue = essentials.queue.get(message.guild.id)
         if (!serverQueue) return message.reply('Nothing is playing right now!').then(e => e.delete(10000));
         const embed = new RichEmbed()

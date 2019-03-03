@@ -1,9 +1,7 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config");
-const redis = require("async-redis");
-const db = redis.createClient({
-    db: 2
-});
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").xpdb
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -30,7 +28,7 @@ module.exports = class SayCommand extends Command {
         return msg.member.roles.exists("id", config.administrator)
     }
     async run(message, {level,role}) {
-        message.delete();
+        message.delete().catch(console.error);
         await db.hset("XP_ROLES", level, role.id)
         return message.reply(`Successsfully added ${role.name} in the database.`).then(e => e.delete(3000))
     }

@@ -1,6 +1,7 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -29,7 +30,7 @@ hasPermission(msg) {
     }
 	
    async run(msg, {tag_name,word}) {
-msg.delete().catch(console.error).then(e=>e.delete(3000));
+await message.delete();
 const exists = await db.hexists("tags",tag_name)
 if (exists) return msg.reply("This tag already exists.").then(e=>e.delete(3000))
 await db.hmset("tags",tag_name,word)

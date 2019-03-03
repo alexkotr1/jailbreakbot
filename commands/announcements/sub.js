@@ -1,5 +1,5 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -24,11 +24,9 @@ hasPermission(msg) {
     }
   async run(msg, {message}) {
 		msg.delete().catch(console.error);
-		const role = msg.guild.roles.find("name","Subreddit News");
-		role.setMentionable(true).then(()=>{
-            msg.guild.channels.get(config.subreddit_news_channel).send(`${role}, ${message}`)
-        }).then(()=>{
-            role.setMentionable(false)
-        })
+		const role = msg.guild.roles.get(config.sub_mods);
+        role.setMentionable(true).then(()=>
+        msg.guild.channels.get(config.subreddit_news_channel).send(`${role}, ${message}`)).catch(console.error)
+        .then(()=>role.setMentionable(false))
     }
 };

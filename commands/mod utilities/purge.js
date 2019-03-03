@@ -1,8 +1,7 @@
-const {
-    Command
-} = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -23,7 +22,7 @@ module.exports = class SayCommand extends Command {
         return msg.member.roles.exists("id", config.moderator) 
     }
     async run(msg, {number}) {
-            msg.delete()
+            await msg.delete()
             if (number > 100) return msg.reply("Value should be less than or equal to 100");
             if (number == 1) return msg.reply("``purge`` can only be used to delete 2 or more messages");
             const fetched = await msg.channel.fetchMessages({

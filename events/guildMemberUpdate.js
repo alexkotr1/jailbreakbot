@@ -1,9 +1,11 @@
-const Discord = require("discord.js")
-const config = require("../config")
-const functions = require("../functions/functions").modules
+const config = require("../config"),
+      functions = require("../functions/functions").modules,
+      { RichEmbed } = require("discord.js")
+
+
 exports.guildMemberUpdate = async function(old,newM){
     if (newM.guild.id !== config.rjb) return undefined
-    const embed = new Discord.RichEmbed()
+    const embed = new RichEmbed()
     .addField("User", newM.user.tag, true)
     .setThumbnail(newM.user.avatarURL)
     .setColor(0x0297DB)

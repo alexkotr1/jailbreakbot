@@ -1,6 +1,6 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
 
 module.exports = class SayCommand extends Command {
     constructor(client) {

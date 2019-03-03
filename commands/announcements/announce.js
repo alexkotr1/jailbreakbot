@@ -1,5 +1,5 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -10,34 +10,29 @@ module.exports = class SayCommand extends Command {
             description: 'Announce firmware updates.Ex: !announce iOS 11.3 db 2 ',
 			guildOnly: true,
             examples: ['!announce 11.3 db 2'],
-            args: [
-                {
-                    key: 'platform',
-                    prompt: 'Which platform\'s update are you going to announce?',
-                    type: 'string'
-                },
-                {
-                    key: 'iOS_Version',
-                    prompt: 'Which iOS version is the update?',
-                    type: 'string'
-                },
-				{
-        key: 'beta',
-        prompt: 'Is it a public ,developer beta or final version(pb or db or final)?',
-		type: 'string',
-		validate: key => key === 'pb' ||  key === 'db' || key === 'final'
-
-		
-            
-    },
-	{
-        key: 'beta_version',
-        prompt: 'Which version of beta?',
-        type: 'integer',
-            
-    }
-				
-            ]
+            args: [{
+                key: 'platform',
+                prompt: 'Which platform\'s update are you going to announce?',
+                type: 'string'
+            },
+            {
+                key: 'iOS_Version',
+                prompt: 'Which iOS version is the update?',
+                type: 'string'
+            },
+            {
+                key: 'beta',
+                prompt: 'Is it a public ,developer beta or final version(pb or db or final)?',
+                type: 'string',
+                validate: key => key === 'pb' || key === 'db' || key === 'final'
+            },
+            {
+                key: 'beta_version',
+                prompt: 'Which version of beta?',
+                type: 'integer'
+            }
+        
+        ]
         });    
     }
 hasPermission(msg) {

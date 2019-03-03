@@ -1,11 +1,12 @@
-const db = require("../utilities/db")
-const Discord = require("discord.js")
-const config = require("../config")
-const functions = require("../functions/functions").modules
+const db = require("../utilities/db").db,
+      config = require("../config"),
+      functions = require("../functions/functions").modules,
+     { RichEmbed } = require("discord.js")
+
 exports.messageDelete = async function(message){
-    if (message.author.bot || !message.guild  || message.webhookID || message.length > 1024 || message.guild.id != config.rjb) return undefined
+    if (message.author.bot || !message.guild  || message.webhookID || message.length > 1024 || message.guild.id != config.rjb || message.channel.id  === config.dev_backroom) return undefined
             const pic_path = await db.get("pic_" + message.id);
-            const embed = new Discord.RichEmbed()
+            const embed = new RichEmbed()
             .setTitle("Message Deleted")
             .addField("User", message.author.tag + ` (${message.author})`, true)
             .addField("Message:", message.content.length ? message.content : 'N\/A')

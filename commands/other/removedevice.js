@@ -1,5 +1,6 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config");
+const { Command } = require('discord.js-commando'),
+        config = require("../../config");
+        
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -19,7 +20,6 @@ module.exports = class SayCommand extends Command {
 await message.delete();
 await message.member.setNickname(message.member.displayName.replace(/\[.*\]/g,""))
 message.reply("Successfully removed the device from your nickname.").then(e=>e.delete(3000))
-
 
 };
 }

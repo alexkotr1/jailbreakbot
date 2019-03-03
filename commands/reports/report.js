@@ -1,7 +1,7 @@
-const { Command } = require('discord.js-commando');
-const Discord = require("discord.js");
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+      config = require("../../config"),
+      db = require("../../utilities/db").db,
+      { RichEmbed } = require("discord.js")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -18,9 +18,9 @@ hasPermission(msg) {
         return msg.member.roles.exists("id", config.administrator)
     }
 
-    run(message) {
-		message.delete(); 
-        const embed = new Discord.RichEmbed()
+    async run(message) {
+        await message.delete();
+        const embed = new RichEmbed()
         .setTitle("Hello! You can choose below when you want to be pinged in the reports channel!")
         .addField("1.", `If you don't want to be pinged in the reports channel react with 1️⃣`)
         .addField("2.", `If you want to be pinged when you are online react with 2️⃣`)

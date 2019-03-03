@@ -1,7 +1,7 @@
-const { Command } = require('discord.js-commando');
-const Discord = require("discord.js");
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        Discord = require("discord.js"),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -19,7 +19,7 @@ hasPermission(msg) {
     }
 
     async run(message) {
-        message.delete().catch(console.error);
+        await message.delete();
         const bad_words = await db.hgetall("bad_words");
         const properties = Object.getOwnPropertyNames(bad_words)
         const embed = new Discord.RichEmbed()

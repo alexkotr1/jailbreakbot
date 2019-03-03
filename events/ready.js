@@ -1,8 +1,8 @@
 const cron = require("node-cron");
-const apply = require("../utilities/request_a_role")
-const functions = require("../functions/functions").modules
-const config = require("../config")
-const db = require("../utilities/db")
+const apply = require("../utilities/request_a_role"),
+	  functions = require("../functions/functions").modules,
+	  config = require("../config"),
+	  db = require("../utilities/db").db
 
 exports.ready = async function ready(client){
     console.log(`Logged in. Servers:${client.guilds.size} Users:${client.users.size}`);
@@ -19,6 +19,7 @@ exports.ready = async function ready(client){
 			if (!muted_members.length) return undefined
 			muted_members.map(async member=>{
 				const time_to_unmute = await db.hget(`${member.user.id}mutedInfo`,'date_to_unmute');
+				if (!time_to_unmute) return undefined
 				if (parseInt(time_to_unmute) < Date.now()) {
 					member.removeRole(muted_Role).catch(console.error)
 					await db.del(`${member.user.id}mutedInfo`)
@@ -27,5 +28,5 @@ exports.ready = async function ready(client){
 
 		})       
 
-    client.user.setActivity(`Save blobs!`);
+    client.user.setActivity(`Save blobs!!`);
 }

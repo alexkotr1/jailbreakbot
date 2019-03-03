@@ -1,6 +1,6 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -39,7 +39,7 @@ hasPermission(msg) {
         return msg.member.roles.exists("id",config.moderator)
     }
     async run(msg, {emoji,role,type,text}) {
-msg.delete().catch(console.error);
+await message.delete();
 const staff_server = msg.client.guilds.get(config.staff_server)
 emoji  = staff_server.emojis.get(emoji) ? staff_server.emojis.get(emoji) : emoji
 const db_string = (type === 'jailbreak' || type === 'jb') ? 'jailbreak_updates' : type === 'firmware' ? 'firmware_updates' : 'other_updates'

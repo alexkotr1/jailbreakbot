@@ -1,13 +1,11 @@
-const Discord = require("discord.js")
-const config = require("../config")
-const db = require("../utilities/db")
-const tweaks = require("./tweaks")
-const download = require('images-downloader').images
-const detectors = require("../utilities/detectors").modules
-const get_client = require("../index")
-const redis = require("async-redis")
-const xpdb = redis.createClient({db:2})
-const xp_user = require("../classes/xp_user").modules
+const { RichEmbed } = require("discord.js"),
+        config = require("../config"),
+        db = require("../utilities/db").db,
+        xpdb = require("../utilities/db").xpdb,
+        download = require('images-downloader').images,
+        detectors = require("../utilities/detectors").modules,
+        get_client = require("../index"),
+        xp_user = require("../classes/xp_user").modules
 
 exports.modules = {
     prepare_reports: async function prepare_reports(rjb) {
@@ -129,7 +127,7 @@ exports.modules = {
         people_to_ping = Array.isArray(people_to_ping) ? people_to_ping.join(",") : people_to_ping
         if (!reports_channel) return undefined
         if (has_invite && has_bad_words.length) {
-            const embed = new Discord.RichEmbed()
+            const embed = new RichEmbed()
             .setTitle("Bad words and server advertisement detected!")
             .addField("User",message.member)
             .addField("Bad words count",has_bad_words.length)
@@ -145,7 +143,7 @@ exports.modules = {
         }
         else if (has_invite && !has_bad_words.length) {
             message.delete();
-            const embed = new Discord.RichEmbed()
+            const embed = new RichEmbed()
             .setTitle("Server advertisement detected")
             .addField("User",message.member)
             .addField("Message Content",message.content)
@@ -157,7 +155,7 @@ exports.modules = {
         }
         else if (has_bad_words.length && !has_invite) {
             message.delete().catch(console.error);
-            const embed = new Discord.RichEmbed()
+            const embed = new RichEmbed()
             .setTitle("Bad words detected!")
             .addField("User",message.member)
             .addField("Bad words count",has_bad_words.length)
@@ -182,7 +180,7 @@ exports.modules = {
         if (role_mentions.length >= 2){
             message.delete();
             message.member.addRole(muted_role).catch(console.error)
-            const Discord = new Discord.RichEmbed()
+            const Discord = new RichEmbed()
             .setTitle("Spam detected!")
             .addField("User", message.member)
             .addField("Reason",`User pinged ${role_mentions.length} roles in a short period of time.`)
@@ -203,7 +201,7 @@ exports.modules = {
                 const regex = new RegExp(`<@!?${member.user.id}\>`,'g')
                 new_content = new_content.replace(regex,'@' + member.user.tag)
             });
-            const Discord = new Discord.RichEmbed()
+            const Discord = new RichEmbed()
             .setTitle("Spam detected!")
             .addField("User", message.member)
             .addField("Reason",`User pinged ${count} members in a short period of time.`)
@@ -213,70 +211,6 @@ exports.modules = {
             return reports.send({embed}).then(()=>message.member.send("**Woah there!** That's a bit too fast. Contact a member of server staff to remove your mute."))
         }
         else db.set(`${message.author.id}_mention_count`,count,'EX','5')
-    },
-    
-    find_tweaks : async function find_tweaks(msg){
-        const tweaks_array = await tweaks.returnTweakInfo(msg.content);
-        if (tweaks_array.length == 0) return undefined
-        const embeds_array = []
-        for (var x =0;x<tweaks_array.length;x++){
-            const tweak = tweaks_array[x]
-            const embed = new Discord.RichEmbed()
-            .setTitle("Tweak Lookup")
-            .addField("Name",tweak.display ? tweak.display : 'N\/A')
-            .addField("Package ID",tweak.name ? tweak.name : 'N\/A')
-            .addField("Description",tweak.summary ? tweak.summary : 'N\/A')
-            .addField("Version",tweak.version ? tweak.version : 'N\/A')
-            .addField("Section",tweak.section ? tweak.section : 'N\/A')
-            .setColor(0x8A2BE2)
-            .addField("Deb Download",`[Link](${tweak.deb ? tweak.deb : 'N\/A'})`)
-            if (tweak.paid == true || tweak.paid === 'true') embed.addField("Price",'$' + tweak.price)
-            else if (tweak.paid == false || tweak.paid === 'false') embed.addField("Price","Free")
-           embed.addField("Repo",`[${tweak.repo ? tweak.repo.name : tweak.repo_name}](${tweak.repo ? tweak.repo.url : tweak.repo_url})`)
-           if (tweak.img) embed.setThumbnail(tweak.img)
-            embeds_array.push({embed})
-        }
-        msg.channel.send(embeds_array[0]).then(async message => {
-            if (embeds_array.length <= 1) return undefined
-            db.set(message.id + 'reactions', 0)
-            await message.react('⬅');
-            await message.react('➡')
-            const filter = (reaction, user) => reaction.emoji.name === '➡' && user.id == msg.author.id
-            const collector = message.createReactionCollector(filter, {
-                time: 200000
-            });
-            collector.on('collect', async r => {
-                const reactors = r.users.array();
-                for (var e = 0; e < reactors.length; e++) {
-                    if (!reactors[e].bot) {
-                        r.remove(reactors[e]);
-                    }
-                }
-                const page = await db.get(r.message.id + 'reactions');
-                if (!embeds_array[parseInt(page) + 1]) return undefined
-                message.edit(embeds_array[parseInt(page) + 1]).then(() => {
-                    db.incr(message.id + 'reactions');
-                })
-            });
-            const filter2 = (reaction, user) => reaction.emoji.name === '⬅' && user.id == msg.author.id
-            const collector2 = message.createReactionCollector(filter2, {
-                time: 120000
-            });
-            collector2.on('collect', async r => {
-                const reactors = r.users.array();
-                for (var e = 0; e < reactors.length; e++) {
-                    if (!reactors[e].bot) {
-                        r.remove(reactors[e]);
-                    }
-                }
-                const page = await db.get(r.message.id + 'reactions');
-                if (!embeds_array[parseInt(page) - 1]) return undefined
-                message.edit(embeds_array[parseInt(page) - 1]).then(() => {
-                    db.incrby(message.id + 'reactions', -1);
-                })
-            });
-            collector.on('end', () => db.del(message.id + 'reactions'))
-        })
     },
     count_genius_message : async function count_geniuses_message(message){
         if (!message.member.roles.exists("id",config.genius) || message.member.roles.exists("id",config.moderator)) return undefined
@@ -315,7 +249,113 @@ exports.modules = {
     .catch(error => console.error("downloaded error", error))
         }
     
+    },
+    crosspost: async function crosspost(message){
+        if (message.guild.id === config.log_server && message.webhookID == null) return message.delete() 
+        const client = get_client.modules.client
+        const log_server = client.guilds.get(config.log_server);
+        if (!log_server || message.guild.id !== config.rjb) return undefined
+        const log_channel = log_server.channels.find(channel=>channel.name === message.channel.name);
+        if (!log_channel){
+            log_server.createChannel(message.channel.name,message.channel.type).then(async channel=>{
+                const parent = message.channel.parent
+                if (parent){
+                const log_parent = log_server.channels.filter(channel=>channel.type === 'category').find(channel=>channel.name === parent.name)
+                if (!log_parent){
+                    const new_log_parent = await log_server.createChannel(parent.name,'category');
+                    new_log_parent.setPosition(parent.position)
+                    channel.setParent(new_log_parent)
+                }
+                else channel.setParent(log_parent)
+            }
+                await channel.setPosition(message.channel.position)
+                if (message.channel.topic) await channel.setTopic(message.channel.topic)
+                channel.createWebhook('JailbreakBot (DO NOT REMOVE)').then(async webhook=>{
+                    await db.hset("webhooks",channel.id,webhook.id)
+                    webhook.send(`**${message.author.tag} : ** ${message.cleanContent}`,{
+                        'username': message.author.id,
+                        'avatarURL' : message.author.avatarURL,
+                        'files' : message.attachments.array().map(attachment => attachment.url),
+                        'disableEveryone' : true,
+                        'split' : true
+                      }).catch(console.error);   
+                })
+            })
+        }
+        else {
+            const webhooks = await log_channel.fetchWebhooks()
+            const id = await db.hget("webhooks",log_channel.id)
+            var hook = webhooks.find(webhook => webhook.id === id)
+            if (!hook){
+               hook = await log_channel.createWebhook('JailbreakBot (DO NOT REMOVE)')
+               await db.hset("webhooks",log_channel.id,hook.id)
+            }
+            hook.send(`**${message.author.tag} : ** ${message.cleanContent}`,{
+                'username': message.author.id,
+                'avatarURL' : message.author.avatarURL,
+                'files' : message.attachments.array().map(attachment => attachment.url),
+                'disableEveryone' : true,
+                'split' : true
+              }).catch(console.error);                
+            
+
+        }
+        
+    }, edit_embeds : async function edit_embeds(msg,embeds_array,sub_embeds,emoji){
+        if (!embeds_array) return undefined
+        embeds_array = embeds_array.filter(embed => embed instanceof RichEmbed)
+        const has_sub = (sub_embeds && emoji) && sub_embeds.length
+        for (var e = 0;e<embeds_array.length;e++){
+            embeds_array[e].setFooter(embeds_array[e].footer ? `${embeds_array[e].footer.text} (Page ${e + 1}\/${embeds_array.length})` : `• Page ${e + 1}\/${embeds_array.length}`)            
+        }
+        const message = await msg.channel.send(embeds_array[0])
+        await db.hset(message.id + 'reactions','page', 0)
+        if (embeds_array.length > 1){
+            await message.react('⬅')
+            await message.react('➡')
+        }
+        if (has_sub) await apply_extra_embed(emoji,message,msg.author.id,sub_embeds,embeds_array)
+        if (!embeds_array.length || embeds_array.length == 1) return undefined
+        const filter = (reaction, user) => reaction.emoji.name === '➡' && user.id == msg.author.id
+        const collector = message.createReactionCollector(filter, {
+            time: 120000
+        });
+        collector.on('collect', async r => {
+            const reactors = r.users.array();
+            for (var e = 0; e < reactors.length; e++) {
+                if (!reactors[e].bot) r.remove(reactors[e]);
+            }
+            var page = parseInt(await db.hget(r.message.id + 'reactions','page')) + 1
+            if (!embeds_array[page]) {
+                message.edit(embeds_array[0])
+                return await db.hset(message.id + 'reactions','page',0)
+            }
+            message.edit(embeds_array[page]).then(() => {
+                db.hincrby(message.id + 'reactions','page',1);
+            })
+        });
+        const filter2 = (reaction, user) => reaction.emoji.name === '⬅' && user.id == msg.author.id
+        const collector2 = message.createReactionCollector(filter2, {
+            time: 120000
+        });
+        collector2.on('collect', async r => {
+            const reactors = r.users.array();
+            for (var e = 0; e < reactors.length; e++) {
+                if (!reactors[e].bot) r.remove(reactors[e])
+            }
+            var page = parseInt(await db.hget(r.message.id + 'reactions','page')) - 1
+            if (!embeds_array[page]) {
+                message.edit(embeds_array[embeds_array.length - 1]);
+                return await db.hset(message.id + 'reactions','page',embeds_array.length - 1)
+            }
+            message.edit(embeds_array[page]).then(() => {
+                db.hincrby(message.id + 'reactions','page', -1);
+            })
+        });
+
+        collector.on('end', () => db.del(message.id + 'reactions'))
     }
+
 
 }
 
@@ -377,21 +417,44 @@ function checkspam(string){
     return false
 }
 
+
 function eliminateDuplicates(arr) {
-var i,
-    len = arr.length,
-    out = [],
-    obj = {};
+    var i,
+        len = arr.length,
+        out = [],
+        obj = {};
+    
+    for (i = 0; i < len; i++) {
+      obj[arr[i]] = 0;
+    }
+    for (i in obj) {
+      out.push(i);
+    }
+    return out;
+    }
 
-for (i = 0; i < len; i++) {
-  obj[arr[i]] = 0;
-}
-for (i in obj) {
-  out.push(i);
-}
-return out;
-}
 
-function div(number){
-  return Math.floor(parseInt(number) / 10)
+async function apply_extra_embed(emoji,message,author_id,sub_embeds,embeds_array){
+        await message.react(emoji)
+        const filter3 = (reaction,user) => reaction.emoji.id === emoji.id && user.id === author_id
+        const collector3 = message.createReactionCollector(filter3,{
+            time: 120000
+        })    
+        collector3.on('collect', async r => {
+            const reactors = r.users.array();
+            for (var e = 0; e < reactors.length; e++) {
+                if (!reactors[e].bot) r.remove(reactors[e])
+            }
+            var page = parseInt(await db.hget(r.message.id + 'reactions','page'))
+            if (!sub_embeds[page]) return undefined
+            const subbed = await db.hexists(message.id + 'reactions','subbed')
+            if (subbed){
+                 await message.edit(embeds_array[page])
+                 await db.hdel(message.id + 'reactions','subbed')
+            }
+            else {
+                await message.edit(sub_embeds[page])
+                await db.hset(message.id + 'reactions','subbed',1)                 
+            }
+        });        
 }

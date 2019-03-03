@@ -1,6 +1,6 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -21,11 +21,11 @@ module.exports = class SayCommand extends Command {
         });    
     }
 hasPermission(msg) {
-        return msg.member.roles.exists("name", "Administrators")
+        return msg.member.roles.exists("id",config.administrator)
     }
 
     async run(message,{word}) {
-        message.delete().catch(console.error);
+        await message.delete();
         const exists = await db.hexists("bad_words",word)
         if (!exists) return message.reply("This bad word doesn't exist.").then(e=>e.delete(3000))
         await db.hdel("bad_words",word)

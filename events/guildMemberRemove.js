@@ -1,9 +1,10 @@
-const config = require("../config")
-const Discord = require("discord.js")
-const functions = require("../functions/functions").modules
+const config = require("../config"),
+      functions = require("../functions/functions").modules,
+      { RichEmbed } = require("discord.js")
+
 exports.guildMemberRemove = function(member){
     if (member.guild.id !== config.rjb) return undefined
-    const embed = new Discord.RichEmbed()
+    const embed = new RichEmbed()
         .setTitle("Member Left")
         .addField("User", member.user.tag + ` (${member})`, true)
         .addField("Created", member.user.createdAt)

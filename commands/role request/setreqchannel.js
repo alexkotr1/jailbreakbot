@@ -1,8 +1,9 @@
-const { Command } = require('discord.js-commando');
-const Discord = require('discord.js');
-const config = require('../../config.json')
-const db = require("../../utilities/db")
-const apply = require("../../utilities/request_a_role")
+const { Command } = require('discord.js-commando'),
+        config = require('../../config.json'),
+        db = require("../../utilities/db").db,
+		apply = require("../../utilities/request_a_role"),
+		{ RichEmbed } = require("discord.js")
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -19,7 +20,7 @@ hasPermission(msg) {
     }
 	
   async run(msg) {
-msg.delete().catch(console.error); 
+await message.delete();
 const staff_server = msg.client.guilds.get(config.staff_server)
 const firmware_fields_length = parseInt(await db.get("firmware_updates_length"))
 const jailbreak_fields_length = parseInt(await db.get("jailbreak_updates_length"))
@@ -67,7 +68,7 @@ apply(msg.client)
 
 function embed(title,text){
 	try{
-	const embed = new Discord.RichEmbed()
+	const embed = new RichEmbed()
 	.addField(title,text)
 	.setColor(0x0297DB)
 	return embed

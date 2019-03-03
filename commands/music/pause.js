@@ -1,8 +1,6 @@
-const {
-    Command
-} = require('discord.js-commando');
-const config = require("../../config");
-const essentials = require("../../music_exports").modules
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        essentials = require("../../music_exports").modules
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -19,7 +17,7 @@ module.exports = class SayCommand extends Command {
         return msg.member.roles.exists("id", config.moderator)
     }
     async run(message) {
-        message.delete().catch(console.error);
+        await message.delete();
         const queue = essentials.queue.get(message.guild.id)
         queue.playing = false;
         queue.connection.dispatcher.pause();

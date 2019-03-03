@@ -1,4 +1,4 @@
-const {Command} = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -13,9 +13,9 @@ module.exports = class SayCommand extends Command {
     }
 
     async run(message) {
-        message.delete().catch(console.error)
+        await message.delete();
         const vc = message.member.voiceChannel
-        if (!vc) return message.reply("You are not in a voice channel!")
+        if (!vc) return message.reply("You are not in a voice channel!").then(e=>e.delete(3000))
         return vc.join()
     }
 }

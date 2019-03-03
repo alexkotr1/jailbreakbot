@@ -1,5 +1,6 @@
-const config = require("../config")
-const db = require("../utilities/db")
+const config = require("../config"),
+      db = require("../utilities/db").db
+      
 module.exports = async function request_a_role(client){
     const rjailbreak = client.guilds.get(config.rjb)
     const request_a_role = rjailbreak.channels.get(config.request_channel)

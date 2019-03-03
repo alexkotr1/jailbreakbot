@@ -1,7 +1,7 @@
-const { Command } = require('discord.js-commando', 'discord.js');
-const config = require("../../config")
-const db = require("../../utilities/db")
-const Discord = require('discord.js');
+const { Command } = require('discord.js-commando');
+        config = require("../../config"),
+        handler = require("../../functions/punishmentHandler")
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -29,47 +29,11 @@ module.exports = class SayCommand extends Command {
             ]
         });    
     }
-hasPermission(msg) {
-        return msg.member.roles.exists("id", config.moderator);
+hasPermission(message) {
+        return message.member.roles.exists("id", config.moderator);
     }
 	
-   async run(msg, {member,points,reason}) {
-await msg.delete().catch(console.error);
-if (member.highestRole.calculatedPosition >= msg.member.highestRole.calculatedPosition) return msg.reply(`You do not have the authority to perform moderation actions on ${member.displayName}.`);
-const modlog = msg.guild.channels.get(config.public_mod_logs);
-if (!modlog) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));
-const can_take_action = await db.exists("action_" + member.user.id)
-if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
-const points_before_warn = parseInt(await db.hget("warnpoints",member.user.id));
-if (points_before_warn + points >= 400){
-    if (points_before_warn + points >= 600) {
-        member.ban({days: 7,reason:"Exceeded warn points limit."}).then(async ()=>{
-           await db.hdel("warnpoints",member.user.id)
-        })
-    }
-  else {
-      member.kick().catch(console.error);
-     await db.hincrby("warnpoints",member.user.id,points).catch(console.error);
-  }
-}
-else db.hincrby("warnpoints",member.user.id,points).catch(console.error);
-const caseNumber = await db.get("cases").catch(console.error);
-await db.incr("cases")
-const embed = new Discord.RichEmbed()
-  .setTitle(`Member Warned`)
-  .setColor(0xffa500)
-  .setFooter(`Case #${caseNumber ? caseNumber : 0} | ${member.user.id}`)
-  .setTimestamp()
-  .addField("Member",`${member.user.tag}(${member})`,true)
-  .addField("Mod",msg.author.tag,true)
-  .addField("Increase",`${points} Points`,true)
-  .addField("Reason",reason,true)
-  .setThumbnail(member.user.avatarURL)
-   await modlog.send({embed}).catch(console.error);
-   await msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
-   await db.set("action_" + member.user.id,'1','EX','30')
-   db.bgsave();
-   await member.user.send(`You have been warned by ${msg.author.tag} with ${points} for: ${reason}.`).catch(console.error);
-
+   async run(message, {member,points,reason}) {
+handler(message,member,reason,'warn',points)
 }
 };

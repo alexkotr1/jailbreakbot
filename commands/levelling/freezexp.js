@@ -1,10 +1,7 @@
-const {
-    Command
-} = require('discord.js-commando');
-const redis = require("async-redis");
-const db = redis.createClient({
-    db: 2
-})
+const { Command } = require('discord.js-commando'),
+        db = require("../../utilities/db").xpdb
+
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -24,10 +21,8 @@ module.exports = class SayCommand extends Command {
     hasPermission(msg) {
         return msg.author.id === msg.guild.ownerID
     }
-    async run(message, {
-        member
-    }) {
-        message.delete();
+    async run(message, { member }) {
+        message.delete().catch(console.error);
         await db.set(member.user.id + '_frozen_xp', 1)
         return message.reply(`Successfully frozen @${member.user.tag}'s xp.`).then(e => e.delete(3000))
     }

@@ -1,9 +1,9 @@
-const YouTube = require('simple-youtube-api');
-const config = require('./config')
-const youtube = new YouTube(config.google_api_key);
-const ytdl = require('ytdl-core');
-const { Util, RichEmbed } = require("discord.js")
-var queue = new Map()
+const YouTube = require('simple-youtube-api'),
+      config = require('./config'),
+      youtube = new YouTube(config.google_api_key),
+      ytdl = require('ytdl-core'),
+    { Util, RichEmbed } = require("discord.js")
+var   queue = new Map()
 
 exports.modules = {
 youtube : youtube,

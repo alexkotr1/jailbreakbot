@@ -1,3 +1,57 @@
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db,
+      { RichEmbed } = require("discord.js")
+
+module.exports = class SayCommand extends Command {
+    constructor(client) {
+        super(client, {
+            name: 'userinfo',
+            group: 'other',
+            memberName: 'userinfo',
+            description: 'Displays info about a user',
+            examples: ['!userinfo'],
+            args: [
+                {
+                    key: 'member',
+                    prompt: 'Please provide a member',
+                    type: 'member',
+					default: ''
+                }
+            ]
+        });    
+    }
+hasPermission(message) {
+        return message.member.roles.exists("id",config.moderator)
+    }
+    async run(message, {member}) {
+        await message.delete();
+		if (!member || member == '') member = message.member;
+		const res = await db.get(`${member.user.id}status`)
+		const date = new Date;
+		const diff = date.valueOf() - member.user.createdAt.valueOf();
+		const date2 = new Date(member.user.createdTimestamp);
+		const diff2 = date.valueOf() - member.joinedAt.valueOf();
+		const date4 = new Date(member.joinedTimestamp);
+		if (member.lastMessage) var diff3 = date.valueOf() - new Date(member.lastMessage.createdTimestamp);
+		const embed = new RichEmbed()
+		.setTitle(member.displayName)
+		.setThumbnail(member.user.avatarURL)
+		.setColor(0x9B59B6)
+		.setFooter(`Requested by ${message.author.tag} | ${message.guild.id}`)
+		.setTimestamp()
+		.addField("User",member.user.tag,true)
+		.addField("Status",member.presence.status + ' ' + getRelativeTime(date.valueOf() - parseInt(res)),true)
+		.addField("Created",`${date2.customFormat("#MM#/#DD#/#YYYY# #hh#:#mm#:#ss#")} (${getRelativeTime(diff,1)})`)
+		.addField("Joined",`${date4.customFormat("#MM#/#DD#/#YYYY# #hh#:#mm#:#ss#")} (${getRelativeTime(diff2,1)})`)
+		if (!member.presence.game) embed.addField("Playing",'~~Not in game~~',true);
+		else embed.addField("Playing",member.presence.game.name);
+		embed.addField("Last Message",member.lastMessage ? `${date4.customFormat("#DD#/#MM#/#YYYY# #hh#:#mm#:#ss#")} (${getRelativeTime(diff3,1)})` : 'Unknown',true)
+
+        message.channel.send({embed}).catch(console.error);		
+    }
+};
+
 Date.prototype.customFormat = function(formatString){
 	var YYYY,YY,MMMM,MMM,MM,M,DDDD,DDD,DD,D,hhhh,hhh,hh,h,mm,m,ss,s,ampm,AMPM,dMod,th;
 	var dateObject = this;
@@ -47,55 +101,3 @@ function getRelativeTime(ms,param){
     }
     return pretty;
 }
-const { Command } = require('discord.js-commando');
-const Discord = require('discord.js');
-const config = require("../../config")
-const db = require("../../utilities/db")
-module.exports = class SayCommand extends Command {
-    constructor(client) {
-        super(client, {
-            name: 'userinfo',
-            group: 'other',
-            memberName: 'userinfo',
-            description: 'Displays info about a user',
-            examples: ['!userinfo'],
-            args: [
-                {
-                    key: 'member',
-                    prompt: 'Please provide a member',
-                    type: 'member',
-					default: ''
-                }
-            ]
-        });    
-    }
-hasPermission(msg) {
-        return msg.member.roles.exists("id",config.moderator)
-    }
-    async run(msg, {member}) {
-		msg.delete().catch(console.error);
-		if (!member || member == '') member = msg.member;
-		const res = await db.get(`${member.user.id}status`)
-		const date = new Date;
-		const diff = date.valueOf() - member.user.createdAt.valueOf();
-		const date2 = new Date(member.user.createdTimestamp);
-		const diff2 = date.valueOf() - member.joinedAt.valueOf();
-		const date4 = new Date(member.joinedTimestamp);
-		if (member.lastMessage) var diff3 = date.valueOf() - new Date(member.lastMessage.createdTimestamp);
-		const embed = new Discord.RichEmbed()
-		.setTitle(member.displayName)
-		.setThumbnail(member.user.avatarURL)
-		.setColor(0x9B59B6)
-		.setFooter(`Requested by ${msg.author.tag} | ${msg.guild.id}`)
-		.setTimestamp()
-		.addField("User",member.user.tag,true)
-		.addField("Status",member.presence.status + ' ' + getRelativeTime(date.valueOf() - parseInt(res)),true)
-		.addField("Created",`${date2.customFormat("#MM#/#DD#/#YYYY# #hh#:#mm#:#ss#")} (${getRelativeTime(diff,1)})`)
-		.addField("Joined",`${date4.customFormat("#MM#/#DD#/#YYYY# #hh#:#mm#:#ss#")} (${getRelativeTime(diff2,1)})`)
-		if (!member.presence.game) embed.addField("Playing",'~~Not in game~~',true);
-		else embed.addField("Playing",member.presence.game.name);
-		embed.addField("Last Message",member.lastMessage ? `${date4.customFormat("#DD#/#MM#/#YYYY# #hh#:#mm#:#ss#")} (${getRelativeTime(diff3,1)})` : 'Unknown',true)
-
-        msg.channel.send({embed}).catch(console.error);		
-    }
-};

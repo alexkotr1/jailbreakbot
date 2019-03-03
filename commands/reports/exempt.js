@@ -1,7 +1,7 @@
-const { Command } = require('discord.js-commando');
-const Discord = require("discord.js")
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db,
+        Discord = require("discord.js")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -38,7 +38,7 @@ hasPermission(msg) {
     }
 
     async run(message,{type,exempt_type,ID}) {
-        message.delete().catch(console.error);
+        await message.delete();
         if ((ID instanceof Discord.Role && type.toLowerCase() === 'channel') || (ID instanceof Discord.GuildChannel && type.toLowerCase() === 'role')) return message.reply("You provided invalid ID.").then(e=>e.delete(3000))
         if (type.toLowerCase() === 'channel'){
             exempt_type = exempt_type === 'invite' ? 'invites_exempted_channels' : 'filter_exempted_channels'

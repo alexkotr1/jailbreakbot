@@ -1,7 +1,6 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
-const Discord = require('discord.js');
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        handler = require("../../functions/punishmentHandler")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -25,47 +24,17 @@ module.exports = class SayCommand extends Command {
 				{
                     key: 'reason',
                     prompt: 'Please provide a reason for the de-warn',
-                    type: 'string',
-					default: 'No reason specified'
+                    type: 'string'
                 }
             ]
         });    
     }
-hasPermission(msg) {
-        return (msg.member.roles.exists("id", config.moderator));
+hasPermission(message) {
+        return (message.member.roles.exists("id", config.moderator));
     }
 	
-    async run(msg, {member,points,reason}) {
-msg.delete().catch(console.error);
-if (member.highestRole.calculatedPosition >= msg.member.highestRole.calculatedPosition) return msg.reply(`You do not have the authority to perform moderation actions on ${member.displayName}.`);
-const channel = msg.guild.channels.get(config.public_mod_logs);
-if (!channel) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));
-const can_take_action = await db.exists("action_" + member.user.id)
-if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
-const db_points = await db.hget("warnpoints",member.user.id)
-const points_before_warn = db_points ? parseInt(db_points) : 0
-if (points_before_warn - points <= 0) db.hdel("warnpoints",member.user.id)
-else db.hincrby('warnpoints',member.user.id,`-${points}`)
-const caseNumber = await db.get("cases")
-db.incr("cases").then(()=>{
-const embed = new Discord.RichEmbed()
-  .setTitle(`Member De-Warned`)
-  .setColor(0xA84300)
-  .setFooter(`Case #${caseNumber ? caseNumber : 0} | ${member.user.id}`)
-  .setTimestamp()
-  .addField("Member",`${member.user.tag}(${member})`,true)
-  .addField("Mod",msg.author.tag,true)
-  .addField("Decrease",`${points} Points`,true)
-  .addField("Reason",reason,true)
-  .setThumbnail(member.user.avatarURL)
-  db.bgsave()
-  channel.send({embed}).then(()=>{
-      member.user.send(`You have been de-warned by ${msg.author.tag} for: ${reason}.`).catch(console.error);
-      msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
-      db.set("action_" + member.user.id,'1','EX','30')
-    })
-
-});
+    async run(message, {member,points,reason}) {
+handler(message,member,reason,'lift-warn',points)
 };
 }
 

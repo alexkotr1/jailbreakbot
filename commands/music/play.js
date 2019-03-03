@@ -1,9 +1,7 @@
-const {
-    Command
-} = require('discord.js-commando');
-const config = require("../../config");
-const essentials = require('../../music_exports').modules
-const { RichEmbed } = require("discord.js");
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        essentials = require('../../music_exports').modules,
+      { RichEmbed } = require("discord.js");
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -24,7 +22,7 @@ module.exports = class SayCommand extends Command {
         return message.member.roles.exists("id", config.moderator) || message.channel.id === config.b_commands
     }
     async run(message, {url}) {
-        message.delete().catch(console.error);
+        await message.delete();
 		const voiceChannel = message.member.voiceChannel;
         if (!voiceChannel) return message.reply('You are not in a voice channel!').then(e=>e.delete(5000));
 		if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {

@@ -1,13 +1,13 @@
-const { CommandoClient } = require('discord.js-commando');
-const Commando = require('discord.js-commando');
-const path = require('path');
-const Snooper = require('reddit-snooper');
-const config = require("./config.json");
-const sqlite = require('sqlite');
-const snooper = new Snooper({
-    automatic_retries: true, 
-    api_requests_per_minuite: 60 
-})
+const { CommandoClient } = require('discord.js-commando'),
+        Commando = require('discord.js-commando'),
+        path = require('path'),
+        Snooper = require('reddit-snooper'),
+        config = require("./config.json"),
+        sqlite = require('sqlite'),
+        snooper = new Snooper({
+            automatic_retries: true, 
+            api_requests_per_minuite: 60 
+            })
 
 const client = new CommandoClient({
     commandPrefix: '!',
@@ -18,6 +18,7 @@ const client = new CommandoClient({
     nonCommandEditable: true,
     autoReconnect: true
 });
+
 exports.modules = {
     get client(){
         return client

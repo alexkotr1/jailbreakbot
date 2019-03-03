@@ -1,11 +1,10 @@
-const {
-    Command
-} = require('discord.js-commando', 'discord.js');
-const xp_user = require("../../classes/xp_user").modules
-const Discord = require('discord.js');
-const config = require("../../config")
-const redis = require("async-redis")
-const db = redis.createClient({db:2})
+const { Command } = require('discord.js-commando'),
+        xp_user = require("../../classes/xp_user").modules,
+        Discord = require('discord.js'),
+        config = require("../../config"),
+        db = require("../../utilities/db").xpdb
+
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {

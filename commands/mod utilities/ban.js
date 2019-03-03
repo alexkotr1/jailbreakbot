@@ -1,64 +1,34 @@
-const {
-    Command
-} = require('discord.js-commando');
-const Discord = require('discord.js');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        handler = require("../../functions/punishmentHandler")
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'ban',
             group: 'mod utilities',
             memberName: 'ban',
-            description: 'Bans the given member permanently.',
+            description: 'Bans given member.',
+            guildOnly: true,
             examples: ['!ban @AlexK#1337 NSFW'],
             args: [{
                     key: 'member',
-                    prompt: 'Please provide a member to ban',
-                    type: 'member'
+                    prompt: 'Enter a member.',
+                    type: 'member',
                 },
                 {
                     key: 'reason',
-                    prompt: 'Provide the reason of the ban.',
+                    prompt: 'Enter a reason.',
                     type: 'string',
-                    default: 'No reason specified'
+                    default: 'No reason specified.'
                 }
             ]
         });
     }
-    hasPermission(msg) {
-        return (msg.member.roles.exists("id", config.moderator));
+    hasPermission(message) {
+        return message.member.roles.exists("id", config.moderator) || message.channel.id === config.b_commands
     }
-
-    async run(msg, {member,reason}){
-        msg.delete().catch(console.error);
-if (member.highestRole.calculatedPosition >= msg.member.highestRole.calculatedPosition) return msg.reply(`You do not have the authority to perform moderation actions on ${member.displayName}`);
-const modlog = msg.guild.channels.get(config.public_mod_logs);
-if (!modlog) return msg.reply("You haven't set a mod logging channel!").then(e=>e.delete(3000));
-if (!member.bannable) return msg.reply("I don't have the permission to perform this action.").catch(console.error);
-const can_take_action = await db.exists("action_" + member.user.id)
-if (can_take_action) return msg.reply("You have to wait 30 seconds till you perform another action on " + member + '.').then(e=>e.delete(3000))
-const caseNumber = await db.get("cases");
-db.incr("cases").then(()=>{
-member.ban({days: 7,reason: reason}).then(()=>{
-    const embed = new Discord.RichEmbed()
-    .setTitle(`Member Banned`)
-    .setColor(0x3498DB)
-    .setFooter(`Case #${caseNumber ? caseNumber : 0} | ${member.user.id}`)
-    .setTimestamp()
-    .addField("Member", `${member.user.tag}(${member})`, true)
-    .addField("Mod", msg.author.tag, true)
-    .addField("Duration", "Permanently", true)
-    .setThumbnail(member.user.avatarURL)
-    .addField("Reason", reason)
-    modlog.send({embed}).catch(console.error);
-    msg.client.guilds.get(config.staff_server).channels.get(config.staff_mod_logs).send({embed}).catch(console.error);
-    member.user.send(`You have been banned from ${msg.guild.name} for the following reason : ${reason}\nIf you feel you were banned wrongfully, you can send a modmail at https://www.reddit.com/message/compose?to=%2Fr%2Fjailbreak .`);
-    db.set("action_" + member.user.id,'1','EX','30')
-
-}).catch(console.error);
-})
-           
-
-    };
+    async run(message, {member, reason}) {
+        handler(message, member, reason, 'ban')
+    }
 }

@@ -1,8 +1,7 @@
-const {
-    Command
-} = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -21,7 +20,7 @@ module.exports = class SayCommand extends Command {
     }
 
     async run(msg, {member}) {
-        msg.delete().catch(console.error);
+        await msg.delete();
         if (!member || member == '') member = msg.member
         if (!msg.member.roles.exists("id", config.moderator) && (msg.author.id !== member.user.id || msg.channel.id !== config.b_commands)) return msg.author.send("You do not have permission to perform this action.");
         const points = await db.hget("warnpoints", member.user.id);

@@ -1,7 +1,4 @@
-const redis = require("async-redis");
-const db = redis.createClient({db : 2});
-const get_client = require("../index")
-const config = require("../config")
+const db = require("../utilities/db").xpdb
 
 exports.modules = class xp_user{
     constructor(id){

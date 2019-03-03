@@ -1,8 +1,6 @@
-const {
-    Command
-} = require('discord.js-commando');
-const config = require("../../config");
-const essentials = require("../../music_exports").modules
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        essentials = require("../../music_exports").modules
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -25,7 +23,7 @@ module.exports = class SayCommand extends Command {
         return message.member.roles.exists("id", config.moderator) || message.channel.id === config.b_commands
     }
     async run(message, {volume}) {
-        message.delete().catch(console.error);
+        await message.delete();
         const serverQueue = essentials.queue.get(message.guild.id)
         if ((volume > 200 || volume < 0) && !message.member.roles.exists("id", config.administrator)) return message.reply("Volume can only get values between 0 and 200.").then(e => e.delete(3000));
         if (!message.member.voiceChannel) return message.reply('You are not in a voice channel!').then(e => e.delete(3000));

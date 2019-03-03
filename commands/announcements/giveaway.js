@@ -1,5 +1,5 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config")
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -20,12 +20,12 @@ hasPermission(message) {
             role : message.guild.roles.get(config.giveaways_role),
             channel : message.guild.channels.get(config.giveaways_channel)
         }    
-        giveaways.role.setMentionable(true).then(()=>{
-            giveaways.channel.send(`${role} NEW GIVEAWAY`)
-        }).then(()=>{
-            giveaways.role.setMentionable(false)
-        })
+        giveaways.role
+        .setMentionable(true)
+        .then(()=>giveaways.channel.send(`${giveaways.role} NEW GIVEAWAY`)
+        .then(()=>giveaways.role.setMentionable(false))
+        )
 		}
-		};
+	};
 		
    

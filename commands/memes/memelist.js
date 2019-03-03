@@ -1,7 +1,7 @@
-const { Command } = require('discord.js-commando', 'discord.js');
-const config = require("../../config")
-const db = require("../../utilities/db")
-const Discord = require('discord.js')
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db,
+      { RichEmbed } = require('discord.js')
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -19,7 +19,7 @@ hasPermission(msg) {
 msg.delete().catch(console.error);
 const res = await db.hgetall("memes")
 if (!res) return msg.reply("I couldn't find any memes.").then(e=>e.delete(3000))
-const embed = new Discord.RichEmbed()
+const embed = new RichEmbed()
 .setFooter(`Requested by ${msg.author.tag} | ${msg.author.id}`)
 .setColor(0xB0098C)
 .setTimestamp()

@@ -1,6 +1,6 @@
-const { Command } = require('discord.js-commando');
-const config = require("../../config")
-const db = require("../../utilities/db")
+const { Command } = require('discord.js-commando'),
+        config = require("../../config"),
+        db = require("../../utilities/db").db
 
 module.exports = class SayCommand extends Command {
     constructor(client) {
@@ -21,11 +21,11 @@ module.exports = class SayCommand extends Command {
         });    
     }
 hasPermission(msg) {
-        return msg.member.roles.exists("name", "Administrators")
+        return msg.member.roles.exists("id", config.administrator)
     }
 
     async run(message,{code}) {
-        message.delete().catch(console.error);
+       await message.delete();
        const exists = await db.hexists("exempt_invites",code)
        if (exists) return message.reply(`\`\`${code}\`\` is already added in the database.`).then(e=>e.delete(3000))
        await db.hmset("exempt_invites",code,'<TBD>')

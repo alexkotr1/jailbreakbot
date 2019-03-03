@@ -25,7 +25,9 @@
     "staff_mod_logs" : "",
     "staff_report_logs" : "",
     "pics_logging_channel" : "",
+    "compatibility_emoji" : "",
     "token" : "",
+    "google_api_key" : "",
     "owner" : ""
 
 }

@@ -1,7 +1,8 @@
-const { Command } = require('discord.js-commando');
-const getDevices = require("../../utilities/devices");
-const Discord = require("discord.js");
-const config = require("../../config");
+const { Command } = require('discord.js-commando'),
+        getDevices = require("../../utilities/devices"),
+        config = require("../../config"),
+      { RichEmbed } = require("discord.js")
+
 module.exports = class SayCommand extends Command {
     constructor(client) {
         super(client, {
@@ -20,7 +21,7 @@ module.exports = class SayCommand extends Command {
     async run(message) {	
 await message.delete()
 const devices = await getDevices()
-const embed = new Discord.RichEmbed()
+const embed = new RichEmbed()
 .addField("Available Devices",'• ' + uniq(devices.map(device=>device.orig_name)).join("\n• "))
 .setColor(0xB0098C)
 .setFooter(`Requested by ${message.author.tag} | ${message.author.id}`)

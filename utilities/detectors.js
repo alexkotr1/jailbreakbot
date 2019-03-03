@@ -1,5 +1,5 @@
-const db = require('./db')
-const config = require("../config")
+const db = require('./db').db,
+      config = require("../config")
 
 exports.modules = {
        contains_invite : async function contains_invite(message) {

@@ -1,11 +1,11 @@
-const config = require("../config")
-const Discord = require("discord.js")
-const functions = require("../functions/functions").modules
-const db = require("../utilities/db")
+const config = require("../config"),
+      functions = require("../functions/functions").modules,
+      db = require("../utilities/db").db,
+    { RichEmbed } = require("discord.js")
 
 exports.guildMemberAdd = async function(member){
     if (member.guild.id !== config.rjb) return undefined
-    const embed = new Discord.RichEmbed()
+    const embed = new RichEmbed()
         .setTitle("User Joined")
         .addField("User", member.user.tag + `(${member})`, true)
         .addField("Created", member.user.createdAt)
