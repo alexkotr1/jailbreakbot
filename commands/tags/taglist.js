@@ -18,7 +18,7 @@ module.exports = class SayCommand extends Command {
         return msg.member.roles.exists("id", config.moderator)
     }
     async run(msg) {
-        await message.delete();
+        await msg.delete();
         const res = await db.hgetall("tags")
         if (!res) return msg.reply("There are no tags yet");
         const array = Object.keys(res)
