@@ -5,6 +5,8 @@ const request = require('snekfetch')
 , edit_embeds = require("./functions").modules.edit_embeds
 , { RichEmbed } = require("discord.js")
 , config = require("../config")
+, compareVersions = require('compare-versions');
+
 
 cron.schedule('0 0 * * *', () => {
     db.flushdb();
@@ -33,9 +35,16 @@ const embed = new RichEmbed()
 .addField("Repo",`[${tweak.repo ? tweak.repo.name : tweak.repo_name}](${tweak.repo ? tweak.repo.url : tweak.repo_url})`)
 if (tweak.img) embed.setThumbnail(tweak.img)
 if (tweak.compatibility && tweak.compatibility.length){
+const versions = tweak.compatibility.map(version=>version.version).sort(compareVersions).map(version=>{
+    for (var e = 0;e<tweak.compatibility.length;e++){
+        if (version === tweak.compatibility[e].version){
+            return `--> ${version} : ${tweak.compatibility[e].status}`
+        }
+    }
+})
 const compatibility_embed = new RichEmbed()
 .setColor(0x4C4CFF)
-.addField(`Compatibility lookup for ${tweak.display}`,tweak.compatibility.map(version => `--> ${version.version} : ${version.status}`).join("\n"))
+.addField(`Compatibility lookup for ${tweak.display}`,versions.join("\n"))
 compatibility_embeds.push(compatibility_embed)
 }
 else {

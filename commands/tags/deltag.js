@@ -25,7 +25,7 @@ hasPermission(msg) {
     }
 	
     async run(msg, {tag_name}) {
-await message.delete();
+await msg.delete();
 const exists = db.hexists("tags",tag_name)
 if (!exists) return msg.reply("I couldn't find this tag.").then(e=>e.delete(3000))
 await db.hdel("tags",tag_name)

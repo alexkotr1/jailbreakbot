@@ -10,8 +10,6 @@ exports.message = async function(message){
     functions.check_for_mentions(message);
     functions.save_message(message);
     functions.save_images(message);
-    functions.count_genius_message(message);
-    functions.crosspost(message);
     detectors.detect_spoilers(message);
     tweaker(message)
 

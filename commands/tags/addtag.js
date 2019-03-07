@@ -30,7 +30,7 @@ hasPermission(msg) {
     }
 	
    async run(msg, {tag_name,word}) {
-await message.delete();
+await msg.delete();
 const exists = await db.hexists("tags",tag_name)
 if (exists) return msg.reply("This tag already exists.").then(e=>e.delete(3000))
 await db.hmset("tags",tag_name,word)
