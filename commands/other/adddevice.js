@@ -15,12 +15,12 @@ module.exports = class SayCommand extends Command {
             args: [
                 {
                     key: 'device',
-                    prompt: 'Insert an iOS device',
+                    prompt: 'Insert an iOS device.',
                     type: 'string',
                 },
 				{
                     key: 'ios',
-                    prompt: 'Which the iOS version of your device.',
+                    prompt: 'Insert the iOS Version of your device.',
                     type: 'string',
                 }
             ]
