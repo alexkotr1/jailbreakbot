@@ -20,7 +20,7 @@ module.exports = class SayCommand extends Command {
                 },
 				{
                     key: 'ios',
-                    prompt: 'Insert the iOS Version of your device.',
+                    prompt: 'Insert the iOS version of your device.',
                     type: 'string',
                 }
             ]
